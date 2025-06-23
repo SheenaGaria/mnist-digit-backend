@@ -13,6 +13,11 @@ CORS(app)  # Allow CORS for all domains (Vercel frontend access)
 # Load the ONNX model
 session = ort.InferenceSession("mnist-8.onnx", providers=["CPUExecutionProvider"])
 
+# Load MNIST from local .npz file
+data = np.load("mnist.npz")
+x_train, y_train = data['x_train'], data['y_train']
+
+
 # Load sample MNIST dataset images for generation
 # You must have `mnist.npz` file generated using: 
 # np.savez('mnist.npz', x_train=x_train, y_train=y_train)
