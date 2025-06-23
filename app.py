@@ -22,19 +22,17 @@ def generate_images():
 
 
 images = []
-for_in range(5):
-      dummy_input = np.random.rand(1, 1, 28, 28).astype(np.float32)
-        input_name = session.get_inputs()[0].name
-        _ = session.run(None, {input_name: dummy_input})
+for _ in range(5):
+       img_array = np.zeros((1, 1, 28, 28), dtype=np.float32)
+    input_name = session.get_inputs()[0].name
+    output = session.run(None, {input_name: img_array})
+    prediction = output[0]
 
-        # Create dummy image
-        image_array = (dummy_input[0][0] * 255).astype(np.uint8)
-        img = Image.fromarray(image_array)
-        buffer = BytesIO()
-        img.save(buffer, format="PNG")
-        img_b64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-        images.append(img_b64)
-
+    image = Image.fromarray((img_array[0][0] * 255).astype(np.uint8))
+    buffered = BytesIO()
+    image.save(buffered, format="PNG")
+    img_b64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+    images.append(img_b64)
     return jsonify({"images": images})
 
 if __name__ == '__main__':
