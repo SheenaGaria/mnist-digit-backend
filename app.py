@@ -1,20 +1,38 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS
 import numpy as np
-import random
+from tensorflow.keras.datasets import mnist
+import base64
+from PIL import Image
+from io import BytesIO
 
 app = Flask(__name__)
-CORS(app)
 
-def generate_digit_image(digit):
-    return np.random.rand(28, 28).tolist()  # Simulates an MNIST-like image
+# Load MNIST dataset once
+(x_train, y_train), _ = mnist.load_data()
 
-@app.route("/generate-digit", methods=["POST"])
-def generate_digit():
+def get_images_for_digit(digit, count=5):
+    indices = np.where(y_train == digit)[0]
+    selected = np.random.choice(indices, count, replace=False)
+    images = []
+
+    for idx in selected:
+        img = Image.fromarray(x_train[idx])
+        buffered = BytesIO()
+        img.save(buffered, format="PNG")
+        img_b64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+        images.append(img_b64)
+
+    return images
+
+@app.route('/generate', methods=['POST'])
+def generate_images():
     data = request.get_json()
-    digit = int(data.get("digit", 0))
-    images = [generate_digit_image(digit) for _ in range(5)]
-    return jsonify({"digit": digit, "images": images})
+    digit = int(data.get("digit", -1))
+    if digit < 0 or digit > 9:
+        return jsonify({"error": "Digit must be between 0 and 9"}), 400
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    images = get_images_for_digit(digit)
+    return jsonify({"images": images})
+
+if __name__ == '__main__':
+    app.run(debug=True)
