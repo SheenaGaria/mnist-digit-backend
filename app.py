@@ -1,14 +1,14 @@
 from flask import Flask, request, jsonify
 import numpy as np
-from tensorflow.keras.datasets import mnist
 import base64
 from PIL import Image
 from io import BytesIO
 
 app = Flask(__name__)
 
-# Load MNIST dataset once
-(x_train, y_train), _ = mnist.load_data()
+# Load MNIST from local .npz file
+data = np.load("mnist.npz")
+x_train, y_train = data['x_train'], data['y_train']
 
 def get_images_for_digit(digit, count=5):
     indices = np.where(y_train == digit)[0]
