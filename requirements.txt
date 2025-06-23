@@ -1,4 +1,5 @@
-Flask
-tensorflow==2.10.1
+flask
+flask-cors
+onnxruntime
 numpy
-pillow
+Pillow
